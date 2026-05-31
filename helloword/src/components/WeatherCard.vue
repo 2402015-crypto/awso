@@ -1,27 +1,17 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useWeatherStore } from '@/stores/weatherStore'
-import { obtenerClima, interpretarCOdigo } from '@/services/weatherService'
+import { interpretarCOdigo } from '@/services/weatherService'
+
+defineProps({
+  cargarClima: {
+    type: Function,
+    required: true
+  }
+})
 
 const store = useWeatherStore()
 const clima = computed(() => interpretarCOdigo(store.codigoClima))
-
-async function cargarClima() {
-  store.cargando = true
-  store.limpiarError()
-
-  try {
-    const datos = await obtenerClima(store.latitud, store.longitud)
-    store.SetClima(datos.temperatura, datos.viento)
-    store.codigoClima = datos.codigoClima
-  } catch {
-    store.error = 'No se pudo conectar con la API de clima'
-  } finally {
-    store.cargando = false
-  }
-}
-
-onMounted(cargarClima)
 </script>
 
 <template>

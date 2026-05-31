@@ -1,4 +1,4 @@
-import  {defineStore}  from "pinia"
+import { defineStore } from 'pinia'
 import { ref, computed } from "vue"
 
 export const useWeatherStore = defineStore('weather', () => {
@@ -23,14 +23,20 @@ export const useWeatherStore = defineStore('weather', () => {
     })
     
     //Acciones
-    function SetCiudad(nombre, lat, lon) {
+    function setCiudad(nombre, lat, lon) {
         ciudad.value = nombre
         latitud.value = lat
         longitud.value = lon
     }
-    function SetClima(temp, vientoKm) {
+    function SetCiudad(nombre, lat, lon) {
+        setCiudad(nombre, lat, lon)
+    }
+    function setClima(temp, vientoKm) {
         temperatura.value = temp
         viento.value = vientoKm
+    }
+    function SetClima(temp, vientoKm) {
+        setClima(temp, vientoKm)
     }
     function limpiarError() {
         error.value = ''
@@ -41,6 +47,6 @@ export const useWeatherStore = defineStore('weather', () => {
         ciudad, latitud, longitud,
         temperatura, viento, codigoClima, cargando, error,
         tieneClima, descripcionClima,
-        SetCiudad, SetClima, limpiarError
+        setCiudad, setClima, SetCiudad, SetClima, limpiarError
     }
 }) 
