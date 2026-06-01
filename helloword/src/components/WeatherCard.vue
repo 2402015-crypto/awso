@@ -48,13 +48,16 @@ const clima = computed(() => interpretarCOdigo(store.codigoClima))
 
 header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  gap: 8px;
   margin-bottom: 16px;
+  text-align: center;
 }
 
 h2 {
   color: #6ba0e4;
+  font-size: 24px;
   margin: 0;
 }
 
