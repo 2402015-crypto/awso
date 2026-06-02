@@ -1,19 +1,43 @@
 <script setup>
-import { computed } from 'vue'
+import { watch, onMounted, onUnmounted  } from 'vue'
 import { useWeatherStore } from '@/stores/weatherStore'
-import { interpretarCOdigo } from '@/services/weatherService'
+import {obtenerClima} from '../services/weatherService'
 
-defineProps({
-  cargarClima: {
-    type: Function,
-    required: true
-  }
+const store = useWeatherStore();
+let timerId = null;
+
+async function cargarClima() {
+ store.cargando = true;
+ store.LimpiarError();
+ try {
+  const data = await obtenerClima(store.latitud, store.longitud)
+  store.setClima(datos.temperatura, datos.viento, datos.codigoClima)
+} catch {
+  store.Error('No se pudo obtener el clima. Intenta nuevamente.')
+} finally {
+  store.cargando = false;
+ }
+}
+
+/*Watch: recargar cuando el usuario cambie de ubicación
+  Solo se ejecutará cuando latitud o longitud cambien*/
+
+watch(
+  [() => store.latitud, () => store.longitud], 
+  () =>
+  cargarClima())
+
+onMounted(() => {
+  await cargarClima()
+  // Recargar cada 10 minutos
+  timer= setInterval(cargarClima, 5 * 60 * 1000); //cada 5 minutos
 })
 
-const store = useWeatherStore()
-const clima = computed(() => interpretarCOdigo(store.codigoClima))
-</script>
+onUnmounted(() => {
+    clearInterval(timer) // Limpiar el timer al desmontar el componente
+  })
 
+</script>
 <template>
   <div class="card">
     <header>

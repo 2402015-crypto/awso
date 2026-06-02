@@ -73,8 +73,8 @@ export const useWeatherStore = defineStore('weather', () => {
    //Exponer todo lo que los componentes puedan necesitar
     return {
         ciudad, latitud, longitud,
-        clima, cargando, error,
+        clima, historial, cargando, error,
         tieneClima, descripcionClima, iconoClima, tiempoActualizacion,
-        setCiudad, setClima, SetCiudad, SetClima, limpiarError
+        setCiudad, setClima, SetClima, limpiarError
     }
 }) 
