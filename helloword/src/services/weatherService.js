@@ -1,5 +1,8 @@
 import axios from "axios";
 
+// Servicio HTTP para consultar datos relacionados con la aplicación del clima.
+// - Usa Open-Meteo para obtener el clima actual.
+// - Usa Nominatim (OpenStreetMap) para geocodificar nombres de ciudades.
 const BASE_URL = 'https://api.open-meteo.com/v1/forecast'
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
 /**
@@ -11,11 +14,17 @@ const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
  */
 
 
+/**
+ * Obtener el clima actual para una lat/lon.
+ * Retorna un objeto con las propiedades: { temperatura, viento, codigoClima }
+ */
 export async function obtenerClima(lat, lon) {
         const respuesta = await axios.get(BASE_URL,{
             params: {
                 latitude: lat,
                 longitude: lon,
+                // La API de Open-Meteo admite diferentes parámetros; aquí
+                // solicitamos las variables actuales del clima.
                 current: 'temperature_2m,wind_speed_10m,weather_code',
                 timezone: 'auto'
             }
@@ -29,6 +38,10 @@ export async function obtenerClima(lat, lon) {
         }
     }
 
+/**
+ * Geocodifica el nombre de una ciudad a coordenadas usando Nominatim.
+ * Retorna { nombre, latitud, longitud } o lanza un Error si no se encuentra.
+ */
 export async function obtenerCoordenadasCiudad(ciudad) {
     const respuesta = await axios.get(NOMINATIM_URL, {
         params: {
@@ -51,13 +64,13 @@ export async function obtenerCoordenadasCiudad(ciudad) {
     }
 }
 
-    /**
-     * Convierte el weather_code de Open-Meteo en un emoji y descripción legible
-     * 
-     * 
-     */
-
-    export function interpretarCOdigo(code) {
+/**
+ * Interpreta el `weather_code` devuelto por Open-Meteo y devuelve
+ * un objeto legible con `emoji` y `desc` para mostrar en la UI.
+ *
+ * Nota: la tabla de códigos puede ajustarse según la documentación de Open-Meteo.
+ */
+export function interpretarCOdigo(code) {
         if (code === 0) return {emoji: '☼', desc: 'Despejado'}
         if (code <= 3) return {emoji: '🌤', desc: 'Parcialmente nublado'}
         if (code <= 48) return {emoji: '🌫', desc: 'Niebla'}

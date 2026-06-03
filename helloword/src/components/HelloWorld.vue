@@ -1,4 +1,10 @@
 <script setup>
+/*
+  Componente: HelloWorld
+  Propósito: plantilla de ejemplo (boilerplate) incluida por Vite.
+  - Mantiene un contador y un campo de nombre para demostración.
+  - No está ligado al store de clima; se puede usar como referencia UI.
+*/
 import { ref } from 'vue'
 import viteLogo from '../assets/vite.svg'
 import heroImg from '../assets/hero.png'

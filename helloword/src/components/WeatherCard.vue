@@ -1,4 +1,16 @@
 <script setup>
+/*
+  Componente: WeatherCard
+  Descripción: Muestra la tarjeta de clima usando el `weatherStore`.
+  - Lee datos desde el store: `ciudad`, `clima`, `cargando`, `error`.
+  - Proporciona la acción `cargarClima()` para forzar la actualización.
+  Notas:
+  - Este componente usa Composition API (`<script setup>`).
+  - Muchas referencias se obtienen desde `useWeatherStore()` y desde
+    los servicios en `src/services/weatherService.js`.
+  - Hay marcadores TODO en el código (p. ej. nombres de variables
+    inconsistentes) que deben revisarse si el comportamiento es incorrecto.
+*/
 import { watch, onMounted, onUnmounted  } from 'vue'
 import { useWeatherStore } from '@/stores/weatherStore'
 import {obtenerClima} from '../services/weatherService'
@@ -6,14 +18,19 @@ import {obtenerClima} from '../services/weatherService'
 const store = useWeatherStore();
 let timerId = null;
 
+// Acción pública: solicita al servicio los datos del clima y actualiza el store.
 async function cargarClima() {
  store.cargando = true;
- store.LimpiarError();
+ // limpiar errores previos en el store
+ store.limpiarError();
  try {
+  // Llamada al servicio externo que retorna { temperatura, viento, codigoClima }
   const data = await obtenerClima(store.latitud, store.longitud)
-  store.setClima(datos.temperatura, datos.viento, datos.codigoClima)
+  // Actualizar el store con los datos recibidos
+  store.setClima(data.temperatura, data.viento, data.codigoClima)
 } catch {
-  store.Error('No se pudo obtener el clima. Intenta nuevamente.')
+  // En caso de error, registrar un mensaje de error en el store
+  store.setError('No se pudo obtener el clima. Intenta nuevamente.')
 } finally {
   store.cargando = false;
  }
@@ -22,39 +39,52 @@ async function cargarClima() {
 /*Watch: recargar cuando el usuario cambie de ubicación
   Solo se ejecutará cuando latitud o longitud cambien*/
 
-watch(
-  [() => store.latitud, () => store.longitud], 
-  () =>
-  cargarClima())
+// Vigila cambios en latitud/longitud para recargar el clima automáticamente.
+watch([
+  () => store.latitud,
+  () => store.longitud
+], () => cargarClima())
 
 onMounted(() => {
-  await cargarClima()
-  // Recargar cada 10 minutos
-  timer= setInterval(cargarClima, 5 * 60 * 1000); //cada 5 minutos
+  // Al montar, cargar el clima inicialmente.
+  cargarClima()
+  // Recargar periódicamente (cada 5 minutos)
+  timerId = setInterval(cargarClima, 5 * 60 * 1000)
 })
 
 onUnmounted(() => {
-    clearInterval(timer) // Limpiar el timer al desmontar el componente
+    // Limpiar el intervalo cuando el componente se desmonte
+    clearInterval(timerId)
   })
 
 </script>
 <template>
   <div class="card">
     <header>
+      <div>
       <h2>{{ store.ciudad }}</h2>
-      <span class="badge">{{ clima.desc }}</span>
+      <span class="actualizacion">{{ store.tiempoActualizacion }}</span>
+      </div>
+            <span class="badge">{{ store.descripcionClima }}</span>
     </header>
 
-    <div v-if="store.error" class="estado error">
-      {{ store.error }}
+    <div v-if="store.cargando" class="estado">
+      <span class="spinner">⌛</span>Obteniendo clima...
     </div>
-
+    <div v-else-if="store.error" class="error">
+      {{ store.error }} 
+    </div>
     <div v-else class="datos">
-      <p class="temp">{{ store.temperatura }}°C</p>
-      <p class="viento">{{ store.viento }} km/h</p>
-      <p class="estado">{{ clima.emoji }} {{ clima.desc }}</p>
+      <p class="icono">{{ store.iconoClima }}</p>
+      <p class="viento">{{ store.clima.viento }} km/h</p>
+      <p class="temp">{{ store.clima.temperatura }}°C</p>
     </div>
 
+    <!--Historial-->  
+    <div class="historial" v-if='store.historial.length>0'>
+        <p class="historial-ciudad">Recientes:</p>
+        <span class="chip" v-for="ciudad in store.historial" :key='ciudad'>{{ ciudad }}</span>
+    </div>
     <button @click="cargarClima" :disabled="store.cargando">
       {{ store.cargando ? 'Actualizando...' : 'Actualizar' }}
     </button>

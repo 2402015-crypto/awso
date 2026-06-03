@@ -1,4 +1,8 @@
 <script setup>
+// Vista: HomeView
+// Descripción: pantalla principal que combina el `SearchBar` y la `WeatherCard`.
+// - Usa el `weatherStore` para obtener y actualizar la ubicación y el clima.
+// - Maneja la búsqueda de ciudades y la carga inicial de datos.
 import { onMounted } from 'vue'
 import SearchBar from '../components/SearchBar.vue'
 import WeatherCard from '../components/WeatherCard.vue'
@@ -7,21 +11,22 @@ import { obtenerClima, obtenerCoordenadasCiudad } from '@/services/weatherServic
 
 const store = useWeatherStore()
 
+// Carga el clima actual y actualiza el store.
 async function cargarClima() {
   store.cargando = true
   store.limpiarError()
 
   try {
     const datos = await obtenerClima(store.latitud, store.longitud)
-    store.setClima(datos.temperatura, datos.viento)
-    store.codigoClima = datos.codigoClima
+    store.setClima(datos.temperatura, datos.viento, datos.codigoClima)
   } catch {
-    store.error = 'No se pudo conectar con la API de clima'
+    store.setError('No se pudo conectar con la API de clima')
   } finally {
     store.cargando = false
   }
 }
 
+// Manejador del evento `buscar` emitido por SearchBar
 async function onBuscar(ciudad) {
   store.limpiarError()
 
@@ -30,7 +35,7 @@ async function onBuscar(ciudad) {
     store.setCiudad(datosCiudad.nombre, datosCiudad.latitud, datosCiudad.longitud)
     await cargarClima()
   } catch (error) {
-    store.error = error?.message || 'No se pudo encontrar la ciudad'
+    store.setError(error?.message || 'No se pudo encontrar la ciudad')
   }
 }
 

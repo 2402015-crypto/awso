@@ -1,10 +1,14 @@
 <script setup>
+// Componente: SearchBar
+// Descripción: formulario simple que emite el evento `buscar` con el nombre de la ciudad.
+// Uso: <SearchBar @buscar="onBuscar" />
 import { ref } from 'vue'
 
 const emit = defineEmits(['buscar'])
 const ciudadInput = ref('')
 
 function buscar() {
+  // Normalizar y validar la entrada antes de emitir
   const ciudad = ciudadInput.value.trim()
 
   if (!ciudad) return
