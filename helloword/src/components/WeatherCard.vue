@@ -11,29 +11,29 @@
   - Hay marcadores TODO en el código (p. ej. nombres de variables
     inconsistentes) que deben revisarse si el comportamiento es incorrecto.
 */
-import { watch, onMounted, onUnmounted  } from 'vue'
+import { watch, onMounted, onUnmounted } from 'vue'
 import { useWeatherStore } from '@/stores/weatherStore'
-import {obtenerClima} from '../services/weatherService'
+import { obtenerClima } from '../services/weatherService'
 
 const store = useWeatherStore();
 let timerId = null;
 
 // Acción pública: solicita al servicio los datos del clima y actualiza el store.
 async function cargarClima() {
- store.cargando = true;
- // limpiar errores previos en el store
- store.limpiarError();
- try {
-  // Llamada al servicio externo que retorna { temperatura, viento, codigoClima }
-  const data = await obtenerClima(store.latitud, store.longitud)
-  // Actualizar el store con los datos recibidos
-  store.setClima(data.temperatura, data.viento, data.codigoClima)
-} catch {
-  // En caso de error, registrar un mensaje de error en el store
-  store.setError('No se pudo obtener el clima. Intenta nuevamente.')
-} finally {
-  store.cargando = false;
- }
+  store.cargando = true;
+  // limpiar errores previos en el store
+  store.limpiarError();
+  try {
+    // Llamada al servicio externo que retorna { temperatura, viento, codigoClima }
+    const data = await obtenerClima(store.latitud, store.longitud)
+    // Actualizar el store con los datos recibidos
+    store.setClima(data.temperatura, data.viento, data.codigoClima)
+  } catch {
+    // En caso de error, registrar un mensaje de error en el store
+    store.setError('No se pudo obtener el clima. Intenta nuevamente.')
+  } finally {
+    store.cargando = false;
+  }
 }
 
 /*Watch: recargar cuando el usuario cambie de ubicación
@@ -53,26 +53,26 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-    // Limpiar el intervalo cuando el componente se desmonte
-    clearInterval(timerId)
-  })
+  // Limpiar el intervalo cuando el componente se desmonte
+  clearInterval(timerId)
+})
 
 </script>
 <template>
   <div class="card">
     <header>
       <div>
-      <h2>{{ store.ciudad }}</h2>
-      <span class="actualizacion">{{ store.tiempoActualizacion }}</span>
+        <h2>{{ store.ciudad }}</h2>
+        <span class="actualizacion">{{ store.tiempoActualizacion }}</span>
       </div>
-            <span class="badge">{{ store.descripcionClima }}</span>
+      <span class="badge">{{ store.descripcionClima }}</span>
     </header>
 
     <div v-if="store.cargando" class="estado">
       <span class="spinner">⌛</span>Obteniendo clima...
     </div>
     <div v-else-if="store.error" class="error">
-      {{ store.error }} 
+      {{ store.error }}
     </div>
     <div v-else class="datos">
       <p class="icono">{{ store.iconoClima }}</p>
@@ -80,11 +80,14 @@ onUnmounted(() => {
       <p class="temp">{{ store.clima.temperatura }}°C</p>
     </div>
 
-    <!--Historial-->  
-    <div class="historial" v-if='store.historial.length>0'>
-        <p class="historial-ciudad">Recientes:</p>
-        <span class="chip" v-for="ciudad in store.historial" :key='ciudad'>{{ ciudad }}</span>
+    <!--Historial-->
+    <div class="historial" v-if="store.historial.length > 0">
+      <p class="historial-ciudad">Recientes:</p>
+      <span class="chip" v-for="ciudad in store.historial" :key="ciudad">
+        {{ ciudad }}
+      </span>
     </div>
+
     <button @click="cargarClima" :disabled="store.cargando">
       {{ store.cargando ? 'Actualizando...' : 'Actualizar' }}
     </button>

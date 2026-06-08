@@ -47,7 +47,8 @@ export async function obtenerCoordenadasCiudad(ciudad) {
         params: {
             q: ciudad,
             format: 'jsonv2',
-            limit: 1,
+            limit: 5,              // traer varias coincidencias
+            countrycodes: 'mx',    // restringir a México
         }
     })
 
@@ -58,11 +59,12 @@ export async function obtenerCoordenadasCiudad(ciudad) {
     }
 
     return {
-        nombre: resultado.name || ciudad,
+        nombre: resultado.display_name || ciudad,
         latitud: Number.parseFloat(resultado.lat),
         longitud: Number.parseFloat(resultado.lon)
     }
 }
+
 
 /**
  * Interpreta el `weather_code` devuelto por Open-Meteo y devuelve

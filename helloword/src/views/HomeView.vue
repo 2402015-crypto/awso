@@ -1,21 +1,17 @@
 <script setup>
-// Vista: HomeView
-// Descripción: pantalla principal que combina el `SearchBar` y la `WeatherCard`.
-// - Usa el `weatherStore` para obtener y actualizar la ubicación y el clima.
-// - Maneja la búsqueda de ciudades y la carga inicial de datos.
 import { onMounted } from 'vue'
 import SearchBar from '../components/SearchBar.vue'
 import WeatherCard from '../components/WeatherCard.vue'
+import HistorialCiudades from '../components/HistorialCiudades.vue'
 import { useWeatherStore } from '@/stores/weatherStore'
 import { obtenerClima, obtenerCoordenadasCiudad } from '@/services/weatherService'
 
 const store = useWeatherStore()
 
-// Carga el clima actual y actualiza el store.
+// Carga inicial del clima
 async function cargarClima() {
   store.cargando = true
   store.limpiarError()
-
   try {
     const datos = await obtenerClima(store.latitud, store.longitud)
     store.setClima(datos.temperatura, datos.viento, datos.codigoClima)
@@ -26,10 +22,9 @@ async function cargarClima() {
   }
 }
 
-// Manejador del evento `buscar` emitido por SearchBar
+// Manejador de búsqueda desde SearchBar
 async function onBuscar(ciudad) {
   store.limpiarError()
-
   try {
     const datosCiudad = await obtenerCoordenadasCiudad(ciudad)
     store.setCiudad(datosCiudad.nombre, datosCiudad.latitud, datosCiudad.longitud)
@@ -41,14 +36,18 @@ async function onBuscar(ciudad) {
 
 onMounted(cargarClima)
 </script>
+
 <template>
-<section class="home">
-  <h1>Weather App</h1>
-  <p class="subtitle">Aplicación del clima en tiempo real</p>
+  <section class="home">
+    <h1>Weather App</h1>
+    <p class="subtitle">Aplicación del clima en tiempo real</p>
     <SearchBar @buscar="onBuscar" />
     <WeatherCard :cargarClima="cargarClima" />
-  </section>    
+    <!-- Nuevo componente de historial -->
+    <HistorialCiudades />
+  </section>
 </template>
+
 <style scoped>
 .home {
   padding: 40px;
@@ -64,5 +63,4 @@ h1 {
   font-size: 2rem;
   margin-bottom: 8px;
 }
-
 </style>
