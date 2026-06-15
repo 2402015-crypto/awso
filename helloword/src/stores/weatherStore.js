@@ -8,7 +8,9 @@ export const useWeatherStore = defineStore('weather', () => {
     const latitud = ref(20.97)
     const longitud = ref(-86.93)
     const cargando = ref(false)
-    const error = ref('')
+
+    // Manejo de errores como array
+    const errores = ref([])
 
     const clima = reactive({
         temperatura: null,
@@ -17,7 +19,7 @@ export const useWeatherStore = defineStore('weather', () => {
         ultimaActualizacion: null
     })
 
-    // Historial de ciudades [{ nombre, lat, lon }]
+    // Historial de ciudades (solo nombres)
     const historial = ref([])
 
     // Computadas
@@ -51,12 +53,10 @@ export const useWeatherStore = defineStore('weather', () => {
 
         // Guardar solo el nombre en historial
         const existe = historial.value.find(c => c === nombre)
-
         if (!existe) {
             historial.value = [nombre, ...historial.value].slice(0, 5)
         }
     }
-
 
     function setClima(temp, vientoKm, cod = null) {
         clima.temperatura = temp
@@ -65,12 +65,16 @@ export const useWeatherStore = defineStore('weather', () => {
         clima.ultimaActualizacion = Date.now()
     }
 
-    function limpiarError() {
-        error.value = ''
+    // Manejo de errores
+    function setError(mensaje) {
+        if (!errores.value.includes(mensaje)) {
+            errores.value.push(mensaje)
+        }
     }
 
-    function setError(mensaje) {
-        error.value = mensaje
+
+    function limpiarErrores() {
+        errores.value = []
     }
 
     function limpiarHistorial() {
@@ -79,8 +83,8 @@ export const useWeatherStore = defineStore('weather', () => {
 
     return {
         ciudad, latitud, longitud,
-        clima, historial, cargando, error,
+        clima, historial, cargando, errores,
         tieneClima, descripcionClima, iconoClima, tiempoActualizacion,
-        setCiudad, setClima, limpiarError, setError, limpiarHistorial
+        setCiudad, setClima, setError, limpiarErrores, limpiarHistorial
     }
 })
