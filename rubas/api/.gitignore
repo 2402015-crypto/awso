@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.*
+firebase-service-account.json
+private.key
+public.key
+*.key
+*.pem
+*.log
+.DS_Store
